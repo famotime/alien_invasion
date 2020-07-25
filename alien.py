@@ -21,6 +21,9 @@ class Alien(Sprite):
         # 存储外星人的准确位置
         self.x = float(self.rect.x)
 
+        # 外星人爆炸的声音文件
+        self.sound = 'sound/enemy1_down.wav'
+
     def blitme(self):
         """在指定位置绘制外星人"""
         self.screen.blit(self.image, self.rect)

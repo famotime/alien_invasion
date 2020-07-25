@@ -1,7 +1,7 @@
 import sys
 import time
 import pygame
-from bullet import Bullet
+from bullet import Bullet, BulletR, BulletL
 from alien import Alien
 
 
@@ -25,8 +25,14 @@ def check_keydown_events(event, ai_settings, screen, ship, bullets):
         ship.moving_right = True
     elif event.key == pygame.K_LEFT:
         ship.moving_left = True
+    elif event.key == pygame.K_UP:
+        ship.moving_up = True
+    elif event.key == pygame.K_DOWN:
+        ship.moving_down = True
+    # 空格键开火
     elif event.key == pygame.K_SPACE:
         fire_bullet(ai_settings, screen, ship, bullets)
+    # q键关闭程序
     elif event.key == pygame.K_q:
         sys.exit()
 
@@ -37,14 +43,25 @@ def check_keyup_events(event, ship):
         ship.moving_right = False
     elif event.key == pygame.K_LEFT:
         ship.moving_left = False
+    elif event.key == pygame.K_UP:
+        ship.moving_up = False
+    elif event.key == pygame.K_DOWN:
+        ship.moving_down = False
 
 
 def fire_bullet(ai_settings, screen, ship, bullets):
     """如果还没有达到限制，就发射一颗子弹"""
-    # 创建一颗子弹，并将其加入到编组bullets
-    if len(bullets) < ai_settings.bullets_allowed:
+    # 创建3颗子弹，并将其加入到编组bullets
+    if len(bullets) <= ai_settings.bullets_allowed - 3:
         new_bullet = Bullet(ai_settings, screen, ship)
+        # 播放声音
+        sound = pygame.mixer.Sound(new_bullet.sound)
+        sound.play()
         bullets.add(new_bullet)
+        new_bullet_right = BulletR(ai_settings, screen, ship)
+        bullets.add(new_bullet_right)
+        new_bullet_left = BulletL(ai_settings, screen, ship)
+        bullets.add(new_bullet_left)
 
 
 def check_play_button(ai_settings, screen, stats, sb, play_button, ship, aliens, bullets, mouse_x, mouse_y):
@@ -103,7 +120,7 @@ def update_bullets(ai_settings, screen, stats, sb, ship, aliens, bullets):
     check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, aliens, bullets)
     # 删除已飞出窗口的子弹
     for bullet in bullets.copy():
-        if bullet.rect.bottom <= 0:
+        if bullet.rect.bottom <= 0 or bullet.rect.left >= ai_settings.screen_width or bullet.rect.right <= 0:
             bullets.remove(bullet)
     # print(len(bullets))
 
@@ -115,6 +132,10 @@ def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, aliens, 
     if collisions:
         # 遍历所有被击中的外星人来计算得分（如果一颗子弹集中了多个外星人，则多次记分）
         for aliens in collisions.values():
+            # 播放爆炸声音
+            for alien in aliens:
+                sound = pygame.mixer.Sound(alien.sound)
+                sound.play()
             stats.score += ai_settings.alien_points * len(aliens)
             sb.prep_score()
         # 检查是否打破了最高分
@@ -188,24 +209,30 @@ def update_aliens(ai_settings, screen, stats, sb, ship, aliens, bullets):
     aliens.update()
 
     # 检测外星人和飞船之间的碰撞，spritecollideany方法遍历alien编组，并返回第一个与飞船发生了碰撞的外星人，如果没有碰撞则返回None
-    if pygame.sprite.spritecollideany(ship, aliens):
+    # 分数小于0，也算发生碰撞，并重新记分为0
+    if pygame.sprite.spritecollideany(ship, aliens) or stats.score < 0:
         ship_hit(ai_settings, screen, stats, sb, ship, aliens, bullets)
+        if stats.score < 0:
+            stats.score = 0
     # 检查是否有外星人到达屏幕底端
     check_aliens_bottom(ai_settings, screen, stats, sb, ship, aliens, bullets)
 
 
 def ship_hit(ai_settings, screen, stats, sb, ship, aliens, bullets):
     """响应飞船被外星人撞到"""
+    # 飞船数量大于0，则继续游戏
     if stats.ships_left > 0:
         # 飞船数量减1，并更新显示数量
         stats.ships_left -= 1
         sb.prep_ships()
-        # 清空外星人和子弹列表
-        aliens.empty()
-        bullets.empty()
 
-        # 创建一群新外星人，并将飞船放到屏幕底端中央
-        create_fleet(ai_settings, screen, ship, aliens)
+        # 清空外星人和子弹列表
+        # aliens.empty()
+        # bullets.empty()
+        # 创建一群新外星人
+        # create_fleet(ai_settings, screen, ship, aliens)
+
+        # 将飞船放到屏幕底端中央
         ship.center_ship()
         # 时间暂停0.5秒，以便让玩家注意到发生碰撞
         time.sleep(0.5)
@@ -218,10 +245,11 @@ def check_aliens_bottom(ai_settings, screen, stats, sb, ship, aliens, bullets):
     """检查是否有外星人到达屏幕底端"""
     screen_rect = screen.get_rect()
     for alien in aliens.sprites():
-        if alien.rect.bottom >= screen_rect.bottom:
-            # 像飞船被撞到一样处理
-            ship_hit(ai_settings, screen, stats, sb, ship, aliens, bullets)
-            break
+        if alien.rect.top >= screen_rect.bottom:
+            # 按击毁外星人的分数的4倍来扣分，并删除外星人
+            stats.score -= ai_settings.alien_points * 4
+            sb.prep_score()
+            aliens.remove(alien)
 
 
 def check_high_score(stats, sb):

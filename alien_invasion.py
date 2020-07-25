@@ -12,7 +12,7 @@ def run_game():
     # 初始化pygame、设置和屏幕对象
     pygame.init()
     ai_settings = Settings()  # 创建一个Settings实例
-    screen = pygame.display.set_mode((ai_settings.screen_width, ai_settings.screen_height)) # 参数为元组
+    screen = pygame.display.set_mode((ai_settings.screen_width, ai_settings.screen_height))     # 参数为元组
     pygame.display.set_caption("Alien Invasion")
 
     # 创建Play按钮
