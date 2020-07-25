@@ -4,4 +4,5 @@
 
 供Python初学者参考。
 
-![image-20200726071538056](https://github.com/famotime/alien_invasion/blob/master/images/screenshot1.png)
+![截图](https://github.com/famotime/alien_invasion/blob/master/images/screenshot1.png)
+
