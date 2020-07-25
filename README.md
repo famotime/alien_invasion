@@ -4,4 +4,4 @@
 
 供Python初学者参考。
 
-![image-20200726071538056](images\image-20200726071538056.png)
+![image-20200726071538056](https://github.com/famotime/alien_invasion/blob/master/images/screenshot1.png)
