@@ -24,6 +24,9 @@ class Settings():
         # 外星人点数的提高速度
         self.score_scale = 1.5
 
+        # 清屏炸弹设置
+        self.bombs_limit = 2  # 每艘飞船默认携带的炸弹数量
+
         self.initialize_dynamic_settings()
 
     def initialize_dynamic_settings(self):

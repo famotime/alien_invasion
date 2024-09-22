@@ -3,16 +3,16 @@ import time
 import pygame
 from bullet import Bullet, BulletR, BulletL
 from alien import Alien
-from explosion import Explosion, SimpleShipExplosion
+from explosion import Explosion, SimpleShipExplosion, BombExplosion
 
 
-def check_events(ai_settings, screen, stats, sb, play_button, ship, aliens, bullets):
+def check_events(ai_settings, screen, stats, sb, play_button, ship, aliens, bullets, explosions):
     """响应键盘和鼠标事件"""
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
         elif event.type == pygame.KEYDOWN:
-            check_keydown_events(event, ai_settings, screen, ship, bullets)
+            check_keydown_events(event, ai_settings, screen, stats, sb, ship, aliens, bullets, explosions)
         elif event.type == pygame.KEYUP:
             check_keyup_events(event, ship)
         elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -20,7 +20,7 @@ def check_events(ai_settings, screen, stats, sb, play_button, ship, aliens, bull
             check_play_button(ai_settings, screen, stats, sb, play_button, ship, aliens, bullets, mouse_x, mouse_y)
 
 
-def check_keydown_events(event, ai_settings, screen, ship, bullets):
+def check_keydown_events(event, ai_settings, screen, stats, sb, ship, aliens, bullets, explosions):
     """响应按键"""
     if event.key == pygame.K_RIGHT:
         ship.moving_right = True
@@ -32,6 +32,8 @@ def check_keydown_events(event, ai_settings, screen, ship, bullets):
     # q键关闭程序
     elif event.key == pygame.K_q:
         sys.exit()
+    elif event.key == pygame.K_LALT or event.key == pygame.K_RALT:
+        fire_bomb(ai_settings, screen, stats, sb, ship, aliens, bullets, explosions)
 
 
 def check_keyup_events(event, ship):
@@ -53,6 +55,54 @@ def fire_bullet(ai_settings, screen, ship, bullets):
         bullets.add(new_bullet)
 
 
+def fire_bomb(ai_settings, screen, stats, sb, ship, aliens, bullets, explosions):
+    if ship.bombs > 0:
+        ship.bombs -= 1
+        sb.prep_bombs()  # 更新炸弹显示
+
+        # 计算得分
+        score_increase = len(aliens) * ai_settings.alien_points * 0.5
+        stats.score += int(score_increase)
+        sb.prep_score()
+        check_high_score(stats, sb)
+
+        # 创建炸弹爆炸效果
+        bomb_explosion = BombExplosion(ship.rect.center, (ai_settings.screen_width, ai_settings.screen_height))
+        explosions.add(bomb_explosion)
+
+        # 播放炸弹爆炸声音
+        explosion_sound = pygame.mixer.Sound('sound/bomb_explosion.wav')
+        explosion_sound.play()
+
+        # 等待炸弹爆炸效果完成
+        start_time = pygame.time.get_ticks()
+        while pygame.time.get_ticks() - start_time < 300:  # 等待300毫秒
+            explosions.update()
+            update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, None, explosions)
+            pygame.display.flip()
+
+        # 为每个外星人创建爆炸效果并立即移除外星人
+        for alien in aliens.sprites():
+            alien_explosion = Explosion(alien.rect.center, "sm")
+            explosions.add(alien_explosion)
+
+        # 清空外星人群
+        aliens.empty()
+
+        # 等待外星人爆炸效果完成
+        start_time = pygame.time.get_ticks()
+        while pygame.time.get_ticks() - start_time < 1000:  # 等待1秒
+            explosions.update()
+            update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, None, explosions)
+            pygame.display.flip()
+
+        # 创建新的外星人群
+        create_fleet(ai_settings, screen, ship, aliens)
+
+        # 更新屏幕
+        update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, None, explosions)
+
+
 def check_play_button(ai_settings, screen, stats, sb, play_button, ship, aliens, bullets, mouse_x, mouse_y):
     """在玩家单击Play按钮时开始新游戏"""
     button_clicked = play_button.rect.collidepoint(mouse_x, mouse_y)
@@ -71,6 +121,7 @@ def check_play_button(ai_settings, screen, stats, sb, play_button, ship, aliens,
         sb.prep_high_score()
         sb.prep_level()
         sb.prep_ships()
+        sb.prep_bombs()
 
         # 清空外星人列表和子弹列表
         aliens.empty()
@@ -91,15 +142,15 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_bu
     ship.blitme()
     aliens.draw(screen)
 
+    # 绘制爆炸效果
+    for explosion in explosions:
+        explosion.draw(screen)
+
     # 显示得分
     sb.show_score()
     # 如果游戏处于非活动状态，就绘制Play按钮(在子弹、飞船、外星人之后再绘制按钮，因此按钮在最上层)
     if not stats.game_active:
         play_button.draw_button()
-
-    # 绘制爆炸效果
-    for explosion in explosions:
-        explosion.draw(screen)
 
     # 让最近绘制的屏幕可见
     pygame.display.flip()
@@ -255,7 +306,11 @@ def ship_hit(ai_settings, screen, stats, sb, ship, aliens, bullets, explosions):
         # 创建一群新外星人
         create_fleet(ai_settings, screen, ship, aliens)
         # 将飞船放到屏幕底端中央
-        ship.rect.center = (ship.screen_rect.centerx, ship.screen_rect.bottom - ship.rect.height / 2)
+        ship.rect.center = (screen.get_rect().centerx, screen.get_rect().bottom - ship.rect.height / 2)
+        ship.center_ship()
+
+        ship.bombs = ai_settings.bombs_limit
+        sb.prep_bombs()
 
     else:
         stats.game_active = False

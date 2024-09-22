@@ -22,6 +22,8 @@ class Ship(Sprite):
         self.moving_right = False
         self.moving_left = False
 
+        self.bombs = ai_settings.bombs_limit
+
     def update(self):
         """根据移动标志调整飞船位置"""
         if self.moving_right and self.rect.right < self.screen_rect.right:
@@ -39,3 +41,4 @@ class Ship(Sprite):
         """让飞船在屏幕上居中"""
         self.centerx = self.screen_rect.centerx
         self.centery = self.screen_rect.bottom - self.rect.height / 2
+        self.bombs = self.ai_settings.bombs_limit  # 重置炸弹数量

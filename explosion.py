@@ -137,3 +137,26 @@ class SimpleShipExplosion(Sprite):
             pygame.draw.rect(screen, fragment['color'],
                              (int(fragment['pos'][0]), int(fragment['pos'][1]),
                               int(fragment['size']), int(fragment['size'])))
+
+class BombExplosion(Sprite):
+    def __init__(self, center, screen_size):
+        super().__init__()
+        self.center = center
+        self.screen_size = screen_size
+        self.radius = 0
+        self.max_radius = min(screen_size) // 2
+        self.duration = 1000  # 1秒
+        self.start_time = pygame.time.get_ticks()
+
+    def update(self):
+        current_time = pygame.time.get_ticks()
+        progress = (current_time - self.start_time) / self.duration
+        if progress >= 1:
+            self.kill()
+        else:
+            self.radius = int(self.max_radius * progress)
+
+    def draw(self, screen):
+        surface = pygame.Surface(self.screen_size, pygame.SRCALPHA)
+        pygame.draw.circle(surface, (255, 0, 0, 128), self.center, self.radius)
+        screen.blit(surface, (0, 0))

@@ -1,17 +1,18 @@
 import pygame.font
-from pygame.sprite import Group
+from pygame.sprite import Group, Sprite
 from ship import Ship
 
 
 class Scoreboard():
     """显示得分信息的类"""
 
-    def __init__(self, ai_settings, screen, stats):
+    def __init__(self, ai_settings, screen, stats, ship):
         """初始化显示得分涉及的属性"""
         self.screen = screen
         self.screen_rect = screen.get_rect()
         self.ai_settings = ai_settings
         self.stats = stats
+        self.ship = ship  # 添加这行
 
         # 显示得分信息时使用的字体设置
         self.text_color = (79,195,247)
@@ -22,6 +23,7 @@ class Scoreboard():
         self.prep_high_score()
         self.prep_level()
         self.prep_ships()
+        self.prep_bombs()  # 添加这行
 
     def prep_score(self):
         """将得分转换为渲染图像"""
@@ -62,9 +64,31 @@ class Scoreboard():
             ship.rect.y = 10
             self.ships.add(ship)
 
+    def prep_bombs(self):
+        """显示还余下多少炸弹"""
+        self.bombs = Group()
+        for bomb_number in range(self.ship.bombs):
+            bomb = Bomb(self.ai_settings, self.screen, self.ship)
+            bomb.rect.x = 10 + bomb_number * bomb.rect.width
+            bomb.rect.y = self.screen_rect.bottom - 10 - bomb.rect.height
+            self.bombs.add(bomb)
+
     def show_score(self):
         """在屏幕上显示当前得分、最高得分、剩余飞船数"""
         self.screen.blit(self.score_image, self.score_rect)
         self.screen.blit(self.high_score_image, self.high_score_rect)
         self.screen.blit(self.level_image, self.level_rect)
         self.ships.draw(self.screen)
+        self.bombs.draw(self.screen)
+
+class Bomb(Sprite):
+    def __init__(self, ai_settings, screen, ship):
+        super(Bomb, self).__init__()
+        self.screen = screen
+        self.ai_settings = ai_settings
+        self.ship = ship
+
+        # 绘制表示炸弹的文字
+        self.font = pygame.font.SysFont(None, 48)
+        self.image = self.font.render('B', True, (255, 0, 0))
+        self.rect = self.image.get_rect()
