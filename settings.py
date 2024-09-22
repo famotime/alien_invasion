@@ -16,8 +16,8 @@ class Settings():
         self.bullet_color = 60, 60, 60
         self.bullets_allowed = 9
 
-        # 外星人设置
-        self.fleet_drop_speed = 10
+        # 外星人下移速度
+        self.fleet_drop_speed = 20
 
         # 加快游戏节奏的速度
         self.speedup_scale = 1.1
@@ -28,9 +28,9 @@ class Settings():
 
     def initialize_dynamic_settings(self):
         """初始化随游戏进行而变化的设置"""
-        self.ship_speed_factor = 1.5
-        self.bullet_speed_factor = 3
-        self.alien_speed_factor = 1
+        self.ship_speed_factor = 1
+        self.bullet_speed_factor = 1
+        self.alien_speed_factor = 0.3
         # 1右移，-1左移
         self.fleet_direction = 1
 

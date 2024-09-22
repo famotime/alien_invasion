@@ -21,8 +21,6 @@ class Ship(Sprite):
 
         self.moving_right = False
         self.moving_left = False
-        self.moving_up = False
-        self.moving_down = False
 
     def update(self):
         """根据移动标志调整飞船位置"""
@@ -30,13 +28,8 @@ class Ship(Sprite):
             self.centerx += self.ai_settings.ship_speed_factor
         if self.moving_left and self.rect.left > 0:
             self.centerx -= self.ai_settings.ship_speed_factor
-        if self.moving_down and self.rect.bottom < self.screen_rect.bottom:
-            self.centery += self.ai_settings.ship_speed_factor
-        if self.moving_up and self.rect.top > 0:
-            self.centery -= self.ai_settings.ship_speed_factor
 
         self.rect.centerx = self.centerx
-        self.rect.centery = self.centery
 
     def blitme(self):
         """在指定位置绘制飞船"""
