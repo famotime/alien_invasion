@@ -13,8 +13,12 @@ def run_game():
     pygame.init()
     pygame.mixer.init()  # 初始化音频系统
     ai_settings = Settings()  # 创建一个Settings实例
-    screen = pygame.display.set_mode((ai_settings.screen_width, ai_settings.screen_height))     # 参数为元组
+    screen = pygame.display.set_mode((ai_settings.screen_width, ai_settings.screen_height))
     pygame.display.set_caption("Alien Invasion")
+
+    # 加载开始/结束图片
+    start_image = pygame.image.load('./images/start.jpeg')
+    start_image = pygame.transform.scale(start_image, (ai_settings.screen_width, ai_settings.screen_height))
 
     # 创建Play按钮
     play_button = Button(ai_settings, screen, "Play")
@@ -28,17 +32,14 @@ def run_game():
     stats.bombs_left = ai_settings.bombs_per_ship * ai_settings.ship_limit
     sb.prep_bombs()
 
-    # 创建一艘飞船
+    # 创建一艘飞船、一个子弹编组和一个外星人编组
     ship = Ship(ai_settings, screen)
-    # 创建一个用于存储子弹的编组
     bullets = Group()
+    aliens = Group()
+    explosions = Group()
 
     # 创建外星人群
-    aliens = Group()
     gf.create_fleet(ai_settings, screen, ship, aliens)
-
-    # 创建一个用于存储爆炸效果的编组
-    explosions = Group()
 
     # 开始游戏的主循环
     while True:
@@ -50,7 +51,7 @@ def run_game():
             gf.update_aliens(ai_settings, screen, stats, sb, ship, aliens, bullets, explosions)
             explosions.update()
 
-        gf.update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_button, explosions)
+        gf.update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_button, explosions, start_image)
 
 
 run_game()

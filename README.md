@@ -37,7 +37,7 @@ python alien_invasion.py
 - game_functions.py: 游戏功能函数
 
 ## 游戏截图
-
+![启动画面](./images/start.jpeg)
 ![游戏截图](./images/alien_invasion.gif)
 
 

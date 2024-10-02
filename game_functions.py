@@ -131,25 +131,25 @@ def check_play_button(ai_settings, screen, stats, sb, play_button, ship, aliens,
         ship.center_ship()
 
 
-def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_button, explosions):
+def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_button, explosions, start_image=None):
     """更新屏幕上的图像"""
-    # 每次循环时都重绘屏幕
-    screen.fill(ai_settings.bg_color)
-    # 先重绘所有子弹，再重绘飞船和外星人（子弹在最底层）
-    for bullet in bullets.sprites():
-        bullet.draw_bullet()
-    ship.blitme()
-    aliens.draw(screen)
-
-    # 绘制爆炸效果
-    for explosion in explosions:
-        explosion.draw(screen)
-
-    # 显示得分
-    sb.show_score()
-    # 如果游戏处于非活动状态，就绘制Play按钮(在子弹、飞船、外星人之后再绘制按钮，因此按钮在最上层)
-    if not stats.game_active:
+    if not stats.game_active and start_image:
+        # 显示开始/结束图片
+        screen.blit(start_image, (0, 0))
         play_button.draw_button()
+    else:
+        screen.fill(ai_settings.bg_color)
+        for bullet in bullets.sprites():
+            bullet.draw_bullet()
+        ship.blitme()
+        aliens.draw(screen)
+
+        # 绘制爆炸效果
+        for explosion in explosions:
+            explosion.draw(screen)
+
+        # 显示得分
+        sb.show_score()
 
     # 让最近绘制的屏幕可见
     pygame.display.flip()
@@ -254,8 +254,7 @@ def update_aliens(ai_settings, screen, stats, sb, ship, aliens, bullets, explosi
     check_fleet_edges(ai_settings, aliens)
     aliens.update()
 
-    # 检测外星人和飞船之间的碰撞，spritecollideany方法遍历alien编组，并返回第一个与飞船发生了碰撞的外星人，如果没有碰撞则返回None
-    # 分数小于0，也算发生碰撞，并重新记分为0
+    # 检测外星人和飞船之间的碰撞
     if pygame.sprite.spritecollideany(ship, aliens) or stats.score < 0:
         ship_hit(ai_settings, screen, stats, sb, ship, aliens, bullets, explosions)
         if stats.score < 0:
@@ -266,7 +265,7 @@ def update_aliens(ai_settings, screen, stats, sb, ship, aliens, bullets, explosi
 
 def ship_hit(ai_settings, screen, stats, sb, ship, aliens, bullets, explosions):
     """响应飞船被外星人撞到"""
-    if stats.ships_left > 1:  # 修改这里，当ships_left为1时表示最后一次机会
+    if stats.ships_left > 1:
         # 创建简单的飞船爆炸效果
         explosion = SimpleShipExplosion(ship.rect.center)
         explosions.add(explosion)
