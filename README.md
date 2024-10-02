@@ -1,11 +1,47 @@
-# Python编程练习：打飞机游戏
+# Python打飞机游戏
 
-基于《Python编程：从入门到实践》一书中的Pygame编程练习，把代码完整手敲了一遍。然后再试着加点东西，比如控制方式、音效等。素材来自网络。
+这是一个基于《Python编程：从入门到实践》一书中的Pygame编程练习开发的打飞机游戏。在原有基础上增加了一些新功能，如控制方式和音效等。
 
-供Python初学者参考。
+## 项目特点
 
-启动alien_invasion.py开始游戏。
-空格键发射子弹，箭头键上下左右移动。
+- 使用Pygame库开发
+- 完整的游戏逻辑和界面
+- 添加了音效
+- 适合Python初学者学习和参考
 
-![截图](https://github.com/famotime/alien_invasion/blob/master/images/screenshot1.png)
+## 如何开始
 
+1. 确保已安装Python和Pygame库
+2. 克隆或下载本仓库
+3. 运行以下命令启动游戏:
+python alien_invasion.py
+
+## 游戏控制
+
+- 空格键: 发射子弹
+- 箭头键: 上下左右移动飞船
+
+## 项目结构
+
+- alien_invasion.py: 主程序文件
+- settings.py: 游戏设置
+- game_stats.py: 游戏统计信息
+- scoreboard.py: 得分显示
+- button.py: 按钮类
+- ship.py: 飞船类
+- alien.py: 外星人类
+- bullet.py: 子弹类
+- game_functions.py: 游戏功能函数
+
+## 游戏截图
+
+![游戏截图](./images/screenshot1.png)
+
+## 贡献
+
+欢迎提出建议和改进意见。如果您想为这个项目做出贡献,请提交pull request。
+
+## 致谢
+
+- 《Python编程：从入门到实践》作者
+- 网络上的游戏素材提供者
