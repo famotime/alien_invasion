@@ -65,12 +65,12 @@ class Scoreboard():
             self.ships.add(ship)
 
     def prep_bombs(self):
-        """显示还余下多少炸弹"""
+        """显示还剩多少炸弹"""
         self.bombs = Group()
-        for bomb_number in range(self.ship.bombs):
-            bomb = Bomb(self.ai_settings, self.screen, self.ship)
+        for bomb_number in range(self.stats.bombs_left):
+            bomb = Bomb(self.ai_settings, self.screen, self.ship)  # 修改这里,添加 self.ship
             bomb.rect.x = 10 + bomb_number * bomb.rect.width
-            bomb.rect.y = self.screen_rect.bottom - 10 - bomb.rect.height
+            bomb.rect.y = 60  # 将炸弹图标放在飞船图标下方
             self.bombs.add(bomb)
 
     def show_score(self):

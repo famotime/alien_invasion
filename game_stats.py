@@ -15,3 +15,4 @@ class GameStats():
         self.ships_left = self.ai_settings.ship_limit
         self.score = 0
         self.level = 1
+        self.bombs_left = self.ai_settings.bombs_per_ship  # 每次重置时,炸弹数量设为每艘飞船的初始数量

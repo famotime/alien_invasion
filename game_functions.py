@@ -34,6 +34,12 @@ def check_keydown_events(event, ai_settings, screen, stats, sb, ship, aliens, bu
         sys.exit()
     elif event.key == pygame.K_LALT or event.key == pygame.K_RALT:
         fire_bomb(ai_settings, screen, stats, sb, ship, aliens, bullets, explosions)
+    elif event.key == pygame.K_b and stats.bombs_left > 0:
+        # 投放炸弹
+        bomb_explosion = BombExplosion(ship.rect.center, (ai_settings.screen_width, ai_settings.screen_height))
+        explosions.add(bomb_explosion)
+        stats.bombs_left -= 1  # 减少可用炸弹数量
+        sb.prep_bombs()  # 更新炸弹图标显示
 
 
 def check_keyup_events(event, ship):
@@ -56,9 +62,9 @@ def fire_bullet(ai_settings, screen, ship, bullets):
 
 
 def fire_bomb(ai_settings, screen, stats, sb, ship, aliens, bullets, explosions):
-    if ship.bombs > 0:
-        ship.bombs -= 1
-        sb.prep_bombs()  # 更新炸弹显示
+    if stats.bombs_left > 0:
+        stats.bombs_left -= 1
+        sb.prep_bombs()
 
         # 计算得分
         score_increase = len(aliens) * ai_settings.alien_points * 0.5
@@ -107,27 +113,20 @@ def check_play_button(ai_settings, screen, stats, sb, play_button, ship, aliens,
     """在玩家单击Play按钮时开始新游戏"""
     button_clicked = play_button.rect.collidepoint(mouse_x, mouse_y)
     if button_clicked and not stats.game_active:
-        # 重置游戏设置
         ai_settings.initialize_dynamic_settings()
-
-        # 隐藏鼠标
         pygame.mouse.set_visible(False)
-        # 重置游戏统计信息
         stats.reset_stats()
         stats.game_active = True
 
-        # 重置记分牌图像
         sb.prep_score()
         sb.prep_high_score()
         sb.prep_level()
         sb.prep_ships()
         sb.prep_bombs()
 
-        # 清空外星人列表和子弹列表
         aliens.empty()
         bullets.empty()
 
-        # 创建一群新的外星人，并让飞船居中
         create_fleet(ai_settings, screen, ship, aliens)
         ship.center_ship()
 
@@ -279,7 +278,9 @@ def ship_hit(ai_settings, screen, stats, sb, ship, aliens, bullets, explosions):
 
         # 飞船数量减1，并更新显示数量
         stats.ships_left -= 1
+        stats.bombs_left = ai_settings.bombs_per_ship  # 重置炸弹数量为每艘飞船的初始数量
         sb.prep_ships()
+        sb.prep_bombs()
 
         # 将飞船隐藏
         ship.rect.center = (-100, -100)
@@ -309,7 +310,8 @@ def ship_hit(ai_settings, screen, stats, sb, ship, aliens, bullets, explosions):
         ship.rect.center = (screen.get_rect().centerx, screen.get_rect().bottom - ship.rect.height / 2)
         ship.center_ship()
 
-        ship.bombs = ai_settings.bombs_limit
+        # 重置飞船的炸弹数量
+        ship.bombs = ai_settings.bombs_per_ship
         sb.prep_bombs()
 
     else:

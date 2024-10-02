@@ -24,6 +24,10 @@ def run_game():
     ship = Ship(ai_settings, screen)
     sb = Scoreboard(ai_settings, screen, stats, ship)
 
+    # 确保在游戏开始时正确初始化炸弹数量
+    stats.bombs_left = ai_settings.bombs_per_ship * ai_settings.ship_limit
+    sb.prep_bombs()
+
     # 创建一艘飞船
     ship = Ship(ai_settings, screen)
     # 创建一个用于存储子弹的编组
