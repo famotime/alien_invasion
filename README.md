@@ -45,3 +45,4 @@ python alien_invasion.py
 
 - 《Python编程：从入门到实践》作者
 - 网络上的游戏素材提供者
+- 游戏启动画面使用[Ideogram](https://ideogram.ai/t/explore)绘制
