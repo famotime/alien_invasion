@@ -137,6 +137,11 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_bu
         # 显示开始/结束图片
         screen.blit(start_image, (0, 0))
         play_button.draw_button()
+
+        # 检查鼠标是否悬停在Play按钮上
+        mouse_pos = pygame.mouse.get_pos()
+        if play_button.is_hovered(mouse_pos):
+            draw_instructions(screen, play_button)
     else:
         screen.fill(ai_settings.bg_color)
         for bullet in bullets.sprites():
@@ -153,6 +158,40 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_bu
 
     # 让最近绘制的屏幕可见
     pygame.display.flip()
+
+
+def draw_instructions(screen, play_button):
+    """绘制游戏按键说明"""
+    font = pygame.font.Font(None, 24)  # 使用默认字体
+
+    instructions = [
+        "Space: Fire",
+        "Arrow Keys: Move ship left/right",
+        "Alt: Drop bomb"
+    ]
+
+    # 创建一个半透明的白色背景
+    bg_surface = pygame.Surface((300, 100))
+    bg_surface.fill((255, 255, 255))
+    bg_surface.set_alpha(128)  # 50% 透明度
+
+    # 设置说明文字的位置
+    bg_rect = bg_surface.get_rect()
+    bg_rect.centerx = screen.get_rect().centerx
+    bg_rect.top = play_button.rect.bottom + 20  # Play 按钮下方 20 像素
+
+    # 绘制半透明背景
+    screen.blit(bg_surface, bg_rect)
+
+    # 绘制文字
+    y_position = bg_rect.top + 10
+    for instruction in instructions:
+        text = font.render(instruction, True, (0, 0, 0))
+        text_rect = text.get_rect()
+        text_rect.centerx = screen.get_rect().centerx
+        text_rect.y = y_position
+        screen.blit(text, text_rect)
+        y_position += 30  # 每行之间的间距
 
 
 def update_bullets(ai_settings, screen, stats, sb, ship, aliens, bullets, explosions):
