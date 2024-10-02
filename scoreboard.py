@@ -56,9 +56,9 @@ class Scoreboard():
         self.level_rect.top = self.score_rect.bottom + 10
 
     def prep_ships(self):
-        """显示还余下多少艘飞船"""
+        """显示还余下多少艘飞船，包括当前飞船"""
         self.ships = Group()
-        for ship_number in range(self.stats.ships_left):
+        for ship_number in range(self.stats.ships_left):  # 不再减1
             ship = Ship(self.ai_settings, self.screen)
             ship.rect.x = 10 + ship_number * ship.rect.width
             ship.rect.y = 10
@@ -67,10 +67,15 @@ class Scoreboard():
     def prep_bombs(self):
         """显示还剩多少炸弹"""
         self.bombs = Group()
+        last_ship = self.ships.sprites()[-1] if self.ships else None
         for bomb_number in range(self.stats.bombs_left):
-            bomb = Bomb(self.ai_settings, self.screen, self.ship)  # 修改这里,添加 self.ship
-            bomb.rect.x = 10 + bomb_number * bomb.rect.width
-            bomb.rect.y = 60  # 将炸弹图标放在飞船图标下方
+            bomb = Bomb(self.ai_settings, self.screen, self.ship)
+            if last_ship:
+                bomb.rect.x = last_ship.rect.right + 10 + bomb_number * (bomb.rect.width + 2)
+                bomb.rect.y = last_ship.rect.y  # 与最后一艘飞船的y坐标对齐
+            else:
+                bomb.rect.x = 10 + bomb_number * (bomb.rect.width + 2)
+                bomb.rect.y = 10
             self.bombs.add(bomb)
 
     def show_score(self):
@@ -88,7 +93,7 @@ class Bomb(Sprite):
         self.ai_settings = ai_settings
         self.ship = ship
 
-        # 绘制表示炸弹的文字
-        self.font = pygame.font.SysFont(None, 48)
+        # 使用字体绘制表示炸弹
+        self.font = pygame.font.SysFont(None, 24)
         self.image = self.font.render('B', True, (255, 0, 0))
         self.rect = self.image.get_rect()

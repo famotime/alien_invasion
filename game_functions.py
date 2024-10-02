@@ -266,8 +266,7 @@ def update_aliens(ai_settings, screen, stats, sb, ship, aliens, bullets, explosi
 
 def ship_hit(ai_settings, screen, stats, sb, ship, aliens, bullets, explosions):
     """响应飞船被外星人撞到"""
-    # 飞船数量大于0，则继续游戏
-    if stats.ships_left > 0:
+    if stats.ships_left > 1:  # 修改这里，当ships_left为1时表示最后一次机会
         # 创建简单的飞船爆炸效果
         explosion = SimpleShipExplosion(ship.rect.center)
         explosions.add(explosion)
