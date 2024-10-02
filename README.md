@@ -35,11 +35,8 @@ python alien_invasion.py
 
 ## 游戏截图
 
-![游戏截图](./images/screenshot1.png)
+![游戏截图](./images/alien_invasion.gif)
 
-## 贡献
-
-欢迎提出建议和改进意见。如果您想为这个项目做出贡献,请提交pull request。
 
 ## 致谢
 
