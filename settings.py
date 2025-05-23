@@ -27,6 +27,9 @@ class Settings():
         # 清屏炸弹设置
         self.bombs_per_ship = 3  # 每艘飞船携带的炸弹数量
 
+        # 道具掉落设置
+        self.powerup_drop_chance_on_kill = 0.1  # 外星人被击落时掉落道具的概率为10%
+
         self.initialize_dynamic_settings()
 
     def initialize_dynamic_settings(self):
