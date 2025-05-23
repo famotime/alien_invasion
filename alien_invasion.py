@@ -37,21 +37,27 @@ def run_game():
     bullets = Group()
     aliens = Group()
     explosions = Group()
+    powerups = Group() # New group for power-ups
 
     # 创建外星人群
     gf.create_fleet(ai_settings, screen, ship, aliens)
 
     # 开始游戏的主循环
     while True:
-        gf.check_events(ai_settings, screen, stats, sb, play_button, ship, aliens, bullets, explosions)
+        # Pass powerups to check_events, update_bullets, update_aliens, and update_screen
+        gf.check_events(ai_settings, screen, stats, sb, play_button, ship, aliens, bullets, explosions, powerups)
 
         if stats.game_active:
             ship.update()
-            gf.update_bullets(ai_settings, screen, stats, sb, ship, aliens, bullets, explosions)
-            gf.update_aliens(ai_settings, screen, stats, sb, ship, aliens, bullets, explosions)
+            # Pass powerups to update_bullets and update_aliens
+            gf.update_bullets(ai_settings, screen, stats, sb, ship, aliens, bullets, explosions, powerups) # Added powerups
+            gf.update_aliens(ai_settings, screen, stats, sb, ship, aliens, bullets, explosions, powerups) # Added powerups
+            # Update powerups separately
+            gf.update_powerups(ai_settings, screen, stats, ship, powerups, sb) # New call
             explosions.update()
 
-        gf.update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_button, explosions, start_image)
+        # Pass powerups to update_screen
+        gf.update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_button, explosions, powerups, start_image) # Added powerups
 
 
 run_game()
