@@ -17,6 +17,11 @@ class PowerUp(Sprite):
         # Attempt to load the power-up image.
         try:
             self.image = pygame.image.load(image_path)
+            # 获取外星飞船的尺寸作为参考
+            alien_image = pygame.image.load('images/alien.bmp')
+            alien_rect = alien_image.get_rect()
+            # 将道具图片缩小到外星飞船的一半大小
+            self.image = pygame.transform.scale(self.image, (alien_rect.width // 2, alien_rect.height // 2))
             self.image_loaded = True
         except pygame.error as e:
             print(f"Warning: Could not load image {image_path}: {e}")
