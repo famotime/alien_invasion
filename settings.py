@@ -5,7 +5,7 @@ class Settings():
         # 屏幕设置
         self.screen_width = 1200
         self.screen_height = 800
-        self.bg_color = (230, 230, 230)
+        self.bg_color = (255, 255, 255)
 
         # 飞船设置
         self.ship_limit = 3  # 游戏开始时的飞船数量
@@ -53,7 +53,7 @@ class Settings():
         self.fast_alien_points = 70
         self.tank_alien_points = 100
         self.shooter_alien_points = 120
-        
+
         # Probabilities for spawning each alien type
         self.alien_spawn_chances = {
             'normal': 0.60,
