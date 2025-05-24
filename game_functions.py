@@ -36,10 +36,10 @@ def check_keydown_events(event, ai_settings, screen, stats, sb, ship, aliens, pl
     elif event.key == pygame.K_q:
         sys.exit()
     # For testing power-up spawning, remove later
-    # elif event.key == pygame.K_p: 
+    # elif event.key == pygame.K_p:
     #     _try_spawn_powerup(ai_settings, screen, ship, powerups)
     elif event.key == pygame.K_LALT or event.key == pygame.K_RALT:
-        fire_bomb(ai_settings, screen, stats, sb, ship, aliens, player_bullets, explosions) # player_bullets
+        fire_bomb(ai_settings, screen, stats, sb, ship, aliens, player_bullets, explosions, powerups) # player_bullets
     elif event.key == pygame.K_b and stats.bombs_left > 0:
         # 投放炸弹
         bomb_explosion = BombExplosion(ship.rect.center, (ai_settings.screen_width, ai_settings.screen_height))
@@ -69,13 +69,13 @@ def fire_bullet(ai_settings, screen, ship, player_bullets): # ai_settings is shi
             # Multi-shot: Create three bullets - center, left, right
             # Center bullet (standard)
             bullet_center = Bullet(ai_settings, screen, ship)
-            
+
             # Left bullet
             bullet_left = Bullet(ai_settings, screen, ship)
             bullet_left.rect.x -= getattr(ai_settings, 'multi_shot_spread_amount', 20) # Spread amount from settings
             # Optionally, give it a slight angle if Bullet class supports dx/dy or angle
             # For simplicity, just offsetting x for now.
-            # If Bullet has dx, dy: bullet_left.dx = -0.5 
+            # If Bullet has dx, dy: bullet_left.dx = -0.5
 
             # Right bullet
             bullet_right = Bullet(ai_settings, screen, ship)
@@ -94,7 +94,7 @@ def fire_bullet(ai_settings, screen, ship, player_bullets): # ai_settings is shi
             player_bullets.add(new_bullet)
 
 
-def fire_bomb(ai_settings, screen, stats, sb, ship, aliens, player_bullets, explosions): # player_bullets
+def fire_bomb(ai_settings, screen, stats, sb, ship, aliens, player_bullets, explosions, powerups): # Added powerups parameter
     if stats.bombs_left > 0:
         stats.bombs_left -= 1
         sb.prep_bombs()
@@ -119,7 +119,7 @@ def fire_bomb(ai_settings, screen, stats, sb, ship, aliens, player_bullets, expl
         # Passing None for enemy_bullets for now, will be updated if this function needs it
         while pygame.time.get_ticks() - start_time < 300:  # 等待300毫秒
             explosions.update()
-            update_screen(ai_settings, screen, stats, sb, ship, aliens, player_bullets, None, explosions, powerups, None) 
+            update_screen(ai_settings, screen, stats, sb, ship, aliens, player_bullets, None, None, explosions, powerups, None)
             pygame.display.flip()
 
         # 为每个外星人创建爆炸效果并立即移除外星人
@@ -134,14 +134,14 @@ def fire_bomb(ai_settings, screen, stats, sb, ship, aliens, player_bullets, expl
         start_time = pygame.time.get_ticks()
         while pygame.time.get_ticks() - start_time < 1000:  # 等待1秒
             explosions.update()
-            update_screen(ai_settings, screen, stats, sb, ship, aliens, player_bullets, None, explosions, powerups, None)
+            update_screen(ai_settings, screen, stats, sb, ship, aliens, player_bullets, None, None, explosions, powerups, None)
             pygame.display.flip()
 
         # 创建新的外星人群
         create_fleet(ai_settings, screen, ship, aliens)
 
         # 更新屏幕
-        update_screen(ai_settings, screen, stats, sb, ship, aliens, player_bullets, None, explosions, powerups, None)
+        update_screen(ai_settings, screen, stats, sb, ship, aliens, player_bullets, None, None, explosions, powerups, None)
 
 
 def check_play_button(ai_settings, screen, stats, sb, play_button, ship, aliens, player_bullets, enemy_bullets, powerups, mouse_x, mouse_y):
@@ -183,7 +183,7 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, player_bullets, 
         screen.fill(ai_settings.bg_color)
         for bullet in player_bullets.sprites(): # Player bullets
             bullet.draw_bullet()
-        
+
         if enemy_bullets: # Draw enemy bullets
             for bullet in enemy_bullets.sprites():
                 bullet.draw_bullet()
@@ -257,8 +257,8 @@ def update_bullets(ai_settings, screen, stats, sb, ship, aliens, player_bullets,
 def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, aliens, player_bullets, explosions, powerups): # Renamed bullets to player_bullets
     """响应子弹和外星人的碰撞"""
     # 子弹摧毁，外星人不自动摧毁
-    collisions = pygame.sprite.groupcollide(bullets, aliens, True, False)
-    
+    collisions = pygame.sprite.groupcollide(player_bullets, aliens, True, False)
+
     if collisions:
         for aliens_hit_by_bullet in collisions.values(): # List of aliens hit by a single bullet
             for alien_hit in aliens_hit_by_bullet:
@@ -270,20 +270,18 @@ def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, aliens, 
                     # 播放爆炸声音
                     sound = pygame.mixer.Sound(alien_hit.sound)
                     sound.play()
-                    
+
                     # 增加得分
                     stats.score += alien_hit.points # Use points from the specific alien instance
                     sb.prep_score()
-                    
+
                     # Chance to spawn a power-up when an alien is killed
                     if random.random() < ai_settings.powerup_drop_chance_on_kill:
                         _try_spawn_powerup(ai_settings, screen, ship, powerups, alien_hit.rect.center)
-                    
-                    alien_hit.kill() # Remove the alien from all groups
-                # If not destroyed, alien just took damage, bullet is already gone.
-        
-        # 检查是否打破了最高分 (moved outside the inner loop, check once after all collisions)
-        check_high_score(stats, sb)
+
+                    # 检查是否产生了新的最高分
+                    check_high_score(stats, sb)
+                    aliens.remove(alien_hit)
 
     # 如果全部外星人被消灭，则删除现有子弹并新建一群外星人，并提高等级
     if len(aliens) == 0:
@@ -326,7 +324,7 @@ def create_alien(ai_settings, screen, aliens, alien_number, row_number):
         alien = ShooterAlien(ai_settings, screen)
     else: # Default to NormalAlien if something goes wrong
         alien = NormalAlien(ai_settings, screen)
-    
+
     # Alien width and height are determined by the specific alien type's image
     alien_width = alien.rect.width
     alien.x = alien_width + alien_width * 2 * alien_number
@@ -340,7 +338,7 @@ def create_fleet(ai_settings, screen, ship, aliens):
     # 使用NormalAlien获取基础尺寸信息，不加入外星人群组
     # This is a simplification; if alien types have vastly different sizes,
     # fleet layout might need more complex logic or use BaseAlien's default image size.
-    temp_alien = NormalAlien(ai_settings, screen) 
+    temp_alien = NormalAlien(ai_settings, screen)
     number_aliens_x = get_number_aliens_x(ai_settings, temp_alien.rect.width)
     number_rows = get_number_rows(ai_settings, ship.rect.height, temp_alien.rect.height)
 
@@ -391,7 +389,7 @@ def ship_hit(ai_settings, screen, stats, sb, ship, aliens, player_bullets, explo
         # Optionally, consume the shield on hit or let it run its duration
         # To consume on hit:
         # ship.shield_active = False
-        # ship.powerup_timers.pop('shield', None) 
+        # ship.powerup_timers.pop('shield', None)
         # ship.shield_image = None # remove visual
         return # Ship is protected
 
@@ -519,7 +517,7 @@ def _try_spawn_powerup(ai_settings, screen, ship, powerups, position=None):
     # This might need adjustment if powerup classes strictly expect an 'ai_game' object.
     # For now, we construct a temporary 'mock_ai_game' object or pass params directly.
     # Let's assume powerup classes can take screen and settings if ai_game is not directly passed.
-    
+
     # Create a simple object that mimics the ai_game structure for PowerUp class
     class MockAiGame:
         def __init__(self, screen_obj, settings_obj, ship_obj):
@@ -565,22 +563,24 @@ def check_ship_powerup_collisions(ai_settings, stats, ship, powerups, sb): # Add
         print(f"Player collected: {powerup.powerup_type}")
         # Instead of powerup.activate(), call ship's method
         ship.activate_powerup(powerup.powerup_type, powerup.duration) # Pass duration from powerup object
-        
-        # Play a sound for collecting power-up (optional)
-        # if hasattr(ai_settings, 'powerup_collect_sound'):
-        #     collect_sound = pygame.mixer.Sound(ai_settings.powerup_collect_sound)
-        #     collect_sound.play()
+
+        # 播放获得道具的声音
+        try:
+            collect_sound = pygame.mixer.Sound('sound/get_bullet.wav')
+            collect_sound.play()
+        except pygame.error as e:
+            print(f"Warning: Could not play powerup collect sound: {e}")
 
         # Potentially give score for collecting power-ups (optional)
         # stats.score += getattr(ai_settings, 'powerup_score_value', 50)
         # sb.prep_score()
         # check_high_score(stats, sb)
-        
+
         # powerup.activate() # This line is now replaced by ship.activate_powerup(...)
         # Actual effect logic will be in ship.py or by PowerUp subclasses modifying ship/settings.
         # For now, the PowerUp.activate() method just prints a message.
         # The duration and specific effects will be handled when ship.py is modified.
-    
+
     # The collided powerup is automatically removed due to dokill=True in spritecollide.
     # If we used spritecollideany, we would need:
     # if collided_powerup:

@@ -53,26 +53,26 @@ class BaseAlien(Sprite):
 class NormalAlien(BaseAlien):
     """普通外星人"""
     def __init__(self, ai_settings, screen):
-        super().__init__(ai_settings, screen, 
+        super().__init__(ai_settings, screen,
                          points=ai_settings.normal_alien_points)
         self.sound = 'sound/enemy1_down.wav' # Default sound
 
 class FastAlien(BaseAlien):
     """快速外星人"""
     def __init__(self, ai_settings, screen):
-        super().__init__(ai_settings, screen, 
-                         speed_factor=ai_settings.alien_speed_factor * ai_settings.fast_alien_speed_multiplier, 
+        super().__init__(ai_settings, screen,
+                         speed_factor=ai_settings.alien_speed_factor * ai_settings.fast_alien_speed_multiplier,
                          points=ai_settings.fast_alien_points)
         # Consider a different image, e.g., tinting or a new asset
-        # self.image = pygame.image.load('images/fast_alien.bmp') 
-        self.sound = 'sound/enemy2_down.wav' 
+        # self.image = pygame.image.load('images/fast_alien.bmp')
+        self.sound = 'sound/enemy2_down.wav'
 
 class TankAlien(BaseAlien):
     """坦克外星人，具有更高生命值但速度较慢"""
     def __init__(self, ai_settings, screen):
-        super().__init__(ai_settings, screen, 
-                         health=ai_settings.tank_alien_health, 
-                         points=ai_settings.tank_alien_points, 
+        super().__init__(ai_settings, screen,
+                         health=ai_settings.tank_alien_health,
+                         points=ai_settings.tank_alien_points,
                          speed_factor=ai_settings.alien_speed_factor * ai_settings.tank_alien_speed_multiplier)
         # Consider a different image
         # self.image = pygame.image.load('images/tank_alien.bmp')
@@ -89,7 +89,7 @@ class ShooterAlien(BaseAlien):
         # self.image = pygame.image.load('images/shooter_alien.bmp') # Optional: distinct image
         self.sound = 'sound/enemy1_down.wav' # Death sound
         try:
-            self.shoot_sound_obj = pygame.mixer.Sound('sound/enemy3_flying.wav')
+            self.shoot_sound_obj = pygame.mixer.Sound('sound/bullet.wav')
         except pygame.error as e:
             print(f"Warning: Could not load shoot sound for ShooterAlien: {e}")
             self.shoot_sound_obj = None
@@ -104,7 +104,7 @@ class ShooterAlien(BaseAlien):
         """尝试射击，如果达到射击间隔且未达到子弹上限"""
         if self.frames_since_last_shot >= self.fire_interval_frames and \
            len(enemy_bullets_group) < ai_settings.enemy_bullets_allowed:
-            
+
             self.frames_since_last_shot = 0
             new_bullet = EnemyBullet(ai_settings, screen, self)
             enemy_bullets_group.add(new_bullet)
