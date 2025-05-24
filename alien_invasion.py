@@ -34,7 +34,8 @@ def run_game():
 
     # 创建一艘飞船、一个子弹编组和一个外星人编组
     ship = Ship(ai_settings, screen)
-    bullets = Group()
+    player_bullets = Group() # Renamed from bullets
+    enemy_bullets = Group() # New group for enemy bullets
     aliens = Group()
     explosions = Group()
     powerups = Group() # New group for power-ups
@@ -44,20 +45,23 @@ def run_game():
 
     # 开始游戏的主循环
     while True:
-        # Pass powerups to check_events, update_bullets, update_aliens, and update_screen
-        gf.check_events(ai_settings, screen, stats, sb, play_button, ship, aliens, bullets, explosions, powerups)
+        # Pass relevant groups to check_events, update_bullets, update_aliens, and update_screen
+        gf.check_events(ai_settings, screen, stats, sb, play_button, ship, aliens, player_bullets, enemy_bullets, explosions, powerups)
 
         if stats.game_active:
             ship.update()
-            # Pass powerups to update_bullets and update_aliens
-            gf.update_bullets(ai_settings, screen, stats, sb, ship, aliens, bullets, explosions, powerups) # Added powerups
-            gf.update_aliens(ai_settings, screen, stats, sb, ship, aliens, bullets, explosions, powerups) # Added powerups
+            # Player bullets
+            gf.update_bullets(ai_settings, screen, stats, sb, ship, aliens, player_bullets, explosions, powerups)
+            # Enemy bullets
+            gf.update_enemy_bullets(ai_settings, screen, stats, sb, ship, aliens, player_bullets, enemy_bullets, explosions, powerups)
+            # Aliens (including firing)
+            gf.update_aliens(ai_settings, screen, stats, sb, ship, aliens, player_bullets, enemy_bullets, explosions, powerups)
             # Update powerups separately
-            gf.update_powerups(ai_settings, screen, stats, ship, powerups, sb) # New call
+            gf.update_powerups(ai_settings, screen, stats, ship, powerups, sb) 
             explosions.update()
 
-        # Pass powerups to update_screen
-        gf.update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_button, explosions, powerups, start_image) # Added powerups
+        # Pass all relevant groups to update_screen
+        gf.update_screen(ai_settings, screen, stats, sb, ship, aliens, player_bullets, enemy_bullets, play_button, explosions, powerups, start_image)
 
 
 run_game()

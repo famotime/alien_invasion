@@ -41,7 +41,34 @@ class Settings():
         self.fleet_direction = 1
 
         # 记分
-        self.alien_points = 50
+        self.alien_points = 50 # Default points for NormalAlien
+
+        # Alien type specific settings
+        self.fast_alien_speed_multiplier = 2.0
+        self.tank_alien_health = 3
+        self.tank_alien_speed_multiplier = 0.75
+        self.shooter_alien_fire_cooldown = 120  # frames
+
+        self.normal_alien_points = 50 # Explicitly defined
+        self.fast_alien_points = 70
+        self.tank_alien_points = 100
+        self.shooter_alien_points = 120
+        
+        # Probabilities for spawning each alien type
+        self.alien_spawn_chances = {
+            'normal': 0.60,
+            'fast': 0.15,
+            'tank': 0.15,
+            'shooter': 0.10
+        }
+
+        # Enemy bullet settings
+        self.enemy_bullet_speed_factor = 1
+        self.enemy_bullet_width = 5
+        self.enemy_bullet_height = 10
+        self.enemy_bullet_color = (255, 50, 50) # Light red
+        self.enemy_bullets_allowed = 10
+
 
     def increase_speed(self):
         """提高速度设置和外星人点数"""
