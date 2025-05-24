@@ -8,8 +8,8 @@ class Ship(Sprite):
         super(Ship, self).__init__()
         self.screen = screen
         self.settings = ai_settings # Renamed for consistency with task, was self.ai_settings
-        # 加载飞船图像并获取其外接矩形
-        self.image = pygame.image.load('images/ship.bmp')
+        # 加载飞船图像并获取其外接矩形，使用 convert_alpha() 支持透明图片
+        self.image = pygame.image.load('images/ship.png').convert_alpha()
         self.rect = self.image.get_rect()
         self.screen_rect = screen.get_rect()
         # 将每艘新飞船放在屏幕底部中央
@@ -88,7 +88,7 @@ class Ship(Sprite):
                 elif powerup_type == 'speed_boost':
                     self.speed_boost_active = False
                     self.settings.ship_speed_factor = self.original_ship_speed
-                
+
                 self.powerup_timers.pop(powerup_type, None)
 
     def update(self):

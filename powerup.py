@@ -16,9 +16,10 @@ class PowerUp(Sprite):
 
         # Attempt to load the power-up image.
         try:
-            self.image = pygame.image.load(image_path)
+            # 使用 convert_alpha() 支持透明图片
+            self.image = pygame.image.load(image_path).convert_alpha()
             # 获取外星飞船的尺寸作为参考
-            alien_image = pygame.image.load('images/alien.bmp')
+            alien_image = pygame.image.load('images/alien.png').convert_alpha()
             alien_rect = alien_image.get_rect()
             # 将道具图片缩小到外星飞船的一半大小
             self.image = pygame.transform.scale(self.image, (alien_rect.width // 2, alien_rect.height // 2))
@@ -27,10 +28,10 @@ class PowerUp(Sprite):
             print(f"Warning: Could not load image {image_path}: {e}")
             # Create a placeholder surface if image loading fails.
             placeholder_size = (30, 30) # Default size for placeholder
-            self.image = pygame.Surface(placeholder_size)
+            self.image = pygame.Surface(placeholder_size, pygame.SRCALPHA)  # 使用 SRCALPHA 支持透明
             # Use a default color (magenta) or a color based on type
             # For simplicity, using magenta for all placeholders.
-            self.image.fill((255, 0, 255)) # Magenta
+            self.image.fill((255, 0, 255, 128)) # 半透明洋红色
             print(f"Created placeholder for {self.powerup_type} at {image_path}")
 
         self.rect = self.image.get_rect()
@@ -115,7 +116,7 @@ class ShieldPowerUp(PowerUp):
     """A power-up that grants the ship temporary invincibility."""
     def __init__(self, ai_game):
         """Initialize the shield power-up."""
-        super().__init__(ai_game, 'shield', 'images/shield_powerup.bmp')
+        super().__init__(ai_game, 'shield', 'images/shield_powerup.png')
         # Specific duration for this power-up can be set here or via settings
         # self.duration = getattr(self.settings, 'shield_duration', 7000)
 
@@ -124,7 +125,7 @@ class RapidFirePowerUp(PowerUp):
     """A power-up that increases the ship's firing rate."""
     def __init__(self, ai_game):
         """Initialize the rapid fire power-up."""
-        super().__init__(ai_game, 'rapid_fire', 'images/rapid_fire_powerup.bmp')
+        super().__init__(ai_game, 'rapid_fire', 'images/rapid_fire_powerup.png')
         # self.duration = getattr(self.settings, 'rapid_fire_duration', 10000)
 
 
@@ -132,7 +133,7 @@ class MultiShotPowerUp(PowerUp):
     """A power-up that allows the ship to fire multiple projectiles at once."""
     def __init__(self, ai_game):
         """Initialize the multi-shot power-up."""
-        super().__init__(ai_game, 'multi_shot', 'images/multi_shot_powerup.bmp')
+        super().__init__(ai_game, 'multi_shot', 'images/multi_shot_powerup.png')
         # self.duration = getattr(self.settings, 'multi_shot_duration', 10000)
 
 
@@ -140,5 +141,5 @@ class SpeedBoostPowerUp(PowerUp):
     """A power-up that temporarily increases the ship's movement speed."""
     def __init__(self, ai_game):
         """Initialize the speed boost power-up."""
-        super().__init__(ai_game, 'speed_boost', 'images/speed_boost_powerup.bmp')
+        super().__init__(ai_game, 'speed_boost', 'images/speed_boost_powerup.png')
         # self.duration = getattr(self.settings, 'speed_boost_duration', 8000)

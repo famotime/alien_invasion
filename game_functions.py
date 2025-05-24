@@ -303,7 +303,7 @@ def get_number_aliens_x(ai_settings, alien_width):
 def get_number_rows(ai_settings, ship_height, alien_height):
     """计算屏幕可容纳多少行外星人"""
     available_space_y = ai_settings.screen_height - 3 * alien_height - ship_height
-    number_rows = int(available_space_y/(3*alien_height))  # 将间距从2倍改为3倍，减少行数
+    number_rows = int(available_space_y/(2*alien_height))  # 将间距从2倍改为3倍，减少行数
     return min(number_rows, 5)  # 限制最大行数为3行
 
 

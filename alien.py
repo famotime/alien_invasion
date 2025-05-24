@@ -3,12 +3,13 @@ from pygame.sprite import Sprite
 
 class BaseAlien(Sprite):
     """基本外星人类，定义所有外星人类型的共同行为"""
-    def __init__(self, ai_settings, screen, image_path='images/alien.bmp', health=1, points=50, speed_factor=None):
+    def __init__(self, ai_settings, screen, image_path='images/alien.png', health=1, points=50, speed_factor=None):
         """初始化基本外星人并设置其起始位置"""
         super().__init__()
         self.screen = screen
         self.ai_settings = ai_settings
-        self.image = pygame.image.load(image_path)
+        # 使用 convert_alpha() 来支持透明图片
+        self.image = pygame.image.load(image_path).convert_alpha()
         self.rect = self.image.get_rect()
         self.health = health
         self.points = points
